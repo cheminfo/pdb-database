@@ -15,7 +15,7 @@ var glob = require("glob");
 var async = require ('async');
 var argv = require('minimist')(process.argv.slice(2));
 var justone;
-var destination=config.couch.destination;
+var destination=config.rsync.destination;
 
 if(argv['justone']) {
     justone = true;
