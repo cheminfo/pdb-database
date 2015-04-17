@@ -16,8 +16,6 @@ exports = module.exports = function(id, pdb) {
                     function (error, stdout, stderr) {
 
                         fs.unlinkSync(pdbFile);
-                        console.log('stdout: ' + stdout);
-                        console.log('stderr: ' + stderr);
                         if (error !== null) {
                             console.log('exec error: ' + error);
                             return reject(error);
