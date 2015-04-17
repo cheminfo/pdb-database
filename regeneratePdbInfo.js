@@ -1,3 +1,6 @@
+// Regenerate the document based on the pdb attachments in all documents of the pdb couch database
+// Resends value computed by the parser
+
 var config = require('./config.js')();
 
 var pdbParser = require('./pdbParser');

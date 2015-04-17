@@ -1,5 +1,8 @@
 // require ftp
 //  npm install ftp
+// Rebuilds the database based on the rsynced directory
+// Resends attachments
+// Resends values computed by the parser
 
 var config = require('./config.js')();
 var pdbParser = require('./pdbParser');

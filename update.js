@@ -12,6 +12,7 @@ var fs = require('fs');
 var nano = require('nano')(config.couch.fullUrl);
 var asyncRsync = require ('async');
 var async = require ('async');
+var pymol = require('./pymol');
 
 
 var destination = config.rsync.destination;
@@ -77,6 +78,8 @@ function processNewFile(newFile, callback) {
                         "content_type":"chemical/x-pdb",
                         "data":buffer.toString("Base64")
                     };
+					// Generate the image with pymol
+
 		    saveToCouchDB(pdbEntry, callback);
 		});
 	})
@@ -97,7 +100,7 @@ function processNewFiles(newFiles, callback) {
 
 
 function saveToCouchDB(entry, callback) {
-	nano.db.create('pdb');
+	nano.db.create(config.couch.database);
 	var pdb = nano.db.use(config.couch.database);
 	pdb.head(entry._id, function(err, _, header) {
 		// if (err) console.log(err.status_code);
