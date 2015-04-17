@@ -7,7 +7,7 @@ var pdbParser = require('./pdbParser');
 var zlib = require('zlib');
 var fs = require('fs');
 var nano = require('nano')(config.couch.fullUrl);
-var glob = require("glob")
+var glob = require("glob");
 var async = require ('async');
 
 var destination=config.couch.destination;
@@ -15,7 +15,7 @@ var destination=config.couch.destination;
 
 glob(destination+"**/*.gz", {}, function (er, files) {
 	processNewFiles(files);
-})
+});
 
 
 function processNewFile(newFile, callback) {

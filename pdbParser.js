@@ -212,12 +212,14 @@ CI.pdbParser=(function() {
     var residueStats={};
     var totalResidues=0;
     var totalChains=0;
+    var allResidues = [];
     for (var key in result.chain) {
       var chain=result.chain[key];
       totalResidues+=chain.nbResidue;
       totalChains++;
       for (var i=0; i<chain.residues.length; i++) {
         var residue=chain.residues[i];
+        allResidues.push(residue);
         if (! residueStats[residue]) {
           residueStats[residue]=0;
         }
@@ -227,6 +229,7 @@ CI.pdbParser=(function() {
       delete chain.residues;
     }
     result.residueStats=residueStats;
+    result.iep = IEP.getIEP(allResidues);
     
     var percentageAA={};
     var totalAA=0;
