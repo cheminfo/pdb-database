@@ -19,12 +19,11 @@ var destination=config.rsync.destination;
 
 if(argv['justone']) {
     justone = true;
-    console.log('Process just one');
 }
 
 glob(destination+"**/*.gz", {}, function (er, files) {
     if(justone) {
-        processNewFile(files.slice(0,1));
+        processNewFiles(files.slice(0,1));
     }
     else {
         processNewFiles(files);
@@ -67,7 +66,7 @@ function processNewFile(newFile, callback) {
 // this file is gzip, we need to uncompress it
 function processNewFiles(newFiles) {
 	if (newFiles && newFiles.length>0) {
-		async.mapLimit(newFiles, 1, processNewFile, function(err,result) {
+		async.mapSeries(newFiles, processNewFile, function(err,result) {
 			console.log(err);
 			console.log(result);
 		})
