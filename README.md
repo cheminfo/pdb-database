@@ -1,3 +1,8 @@
+PDB Database
+==============================
+Sync of the official PDB database in couchdb. The database is searchable for properties like number of residues, residue percentages, molecular weight etc...
+
+
 CouchDB replication of the PDB
 ==============================
 
