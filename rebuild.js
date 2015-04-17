@@ -6,6 +6,7 @@
 
 var config = require('./config.js')();
 var pdbParser = require('./pdbParser');
+var pymol = require('./pymol');
 
 var zlib = require('zlib');
 var fs = require('fs');
@@ -35,7 +36,18 @@ function processNewFile(newFile, callback) {
     			"content_type":"chemical/x-pdb",
     			"data":buffer.toString("Base64")
     		    };
-		    saveToCouchDB(pdbEntry, callback);
+            pymol(id, buffer.toString()).then(function(buff) {
+               pdbEntry._attachments['200.gif'] = {
+                   "content_type": "image/gif",
+                   "data": buff.toString("Base64")
+               };
+                saveToCouchDB(pdbEntry, callback);
+            }, function(err) {
+                console.error('An error occured while generating the image with pymol', err);
+                console.log('No image could be generated for ' + id);
+                saveToCouchDB(pdbEntry, callback);
+            });
+
 		});
 	})
 }
