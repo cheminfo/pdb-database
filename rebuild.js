@@ -13,12 +13,23 @@ var fs = require('fs');
 var nano = require('nano')(config.couch.fullUrl);
 var glob = require("glob");
 var async = require ('async');
-
+var argv = require('minimist')(process.argv.slice(2));
+var justone;
 var destination=config.couch.destination;
 
+if(argv['justone']) {
+    justone = true;
+    console.log('Process just one');
+}
 
 glob(destination+"**/*.gz", {}, function (er, files) {
-	processNewFiles(files);
+    if(justone) {
+        processNewFile(files.slice(0,1));
+    }
+    else {
+        processNewFiles(files);
+    }
+
 });
 
 
@@ -72,7 +83,7 @@ function saveToCouchDB(entry, callback) {
 		if (header && header.etag) { // a revision exists
 			entry._rev=header.etag.replace(/"/g,""); // strange code ?!!!!
 		}
-		
+
 		pdb.insert( entry, function(err, body, header) {
 	    	if (err) throw console.log(err);
 	    	callback(null, entry._id);
