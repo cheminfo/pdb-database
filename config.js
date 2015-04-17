@@ -12,7 +12,8 @@ exports = module.exports = function() {
         couchUrl.auth = config.couch.user + ':' + config.couch.password;
     }
     if(!couchUrl.port && config.couch.port) {
-        couchUrl.port = config.couch.port;
+        delete couchUrl.host;
+        couchUrl.port = '' + config.couch.port;
     }
     config.couch.fullUrl = url.format(couchUrl);
     fullConfig = config;
