@@ -15,16 +15,15 @@ var glob = require("glob");
 var async = require ('async');
 var argv = require('minimist')(process.argv.slice(2));
 var justone;
-var destination=config.couch.destination;
-
+var destination=config.rsync.destination;
+console.log(config);
 if(argv['justone']) {
     justone = true;
-    console.log('Process just one');
 }
-
+console.log('destination',destination);
 glob(destination+"**/*.gz", {}, function (er, files) {
     if(justone) {
-        processNewFile(files.slice(0,1));
+        processNewFiles(files.slice(0,1));
     }
     else {
         processNewFiles(files);
@@ -34,7 +33,6 @@ glob(destination+"**/*.gz", {}, function (er, files) {
 
 
 function processNewFile(newFile, callback) {
-	console.log("Process: "+newFile);
 	fs.readFile(newFile, function(err,data) {
 		if (err) console.log(err);
 		zlib.gunzip(data, function(err, buffer) {
@@ -67,7 +65,7 @@ function processNewFile(newFile, callback) {
 // this file is gzip, we need to uncompress it
 function processNewFiles(newFiles) {
 	if (newFiles && newFiles.length>0) {
-		async.mapLimit(newFiles, 1, processNewFile, function(err,result) {
+		async.mapSeries(newFiles, processNewFile, function(err,result) {
 			console.log(err);
 			console.log(result);
 		})
