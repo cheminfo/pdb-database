@@ -1,0 +1,11 @@
+{
+  "couch": {
+    "url": "",
+    "database":"",
+    "password": ""
+  },
+  "rsync": {
+    "source": "",
+    "destination":""
+  }
+}
