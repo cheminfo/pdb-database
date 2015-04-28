@@ -5,17 +5,13 @@
 // Resends values computed by the parser
 
 var config = require('./config.js')();
-var pdbParser = require('./pdbParser');
-var pymol = require('./pymol');
-
-var zlib = require('zlib');
-var fs = require('fs');
-var nano = require('nano')(config.couch.fullUrl);
+var common = require('./common');
 var glob = require("glob");
 var async = require ('async');
 var argv = require('minimist')(process.argv.slice(2));
 var justone;
 var destination=config.rsync.destination;
+var pdb = common.createCouchDB(config.couch);
 
 if(argv['justone']) {
     justone = true;
@@ -32,63 +28,15 @@ glob(destination+"**/*.gz", {}, function (er, files) {
 });
 
 
-function processNewFile(newFile, callback) {
-	var pymolOptions = {
-		width: 400, height:400
-	};
-	console.log("Process: "+newFile);
-	fs.readFile(newFile, function(err,data) {
-		if (err) console.log(err);
-		zlib.gunzip(data, function(err, buffer) {
-			if (err) throw err;
-			var id=newFile.replace(/^.*\/pdb([^\.]*).*/,"$1").toUpperCase();
-			console.log('PDB id: ', id);
-		    var pdbEntry = pdbParser.parse(buffer.toString());
-		    pdbEntry._id=id;
-                    pdbEntry._attachments={};
-		    pdbEntry._attachments[id+".pdb"]={
-    			"content_type":"chemical/x-pdb",
-    			"data":buffer.toString("Base64")
-    		    };
-            pymol(id, buffer.toString(), pymolOptions).then(function(buff) {
-               pdbEntry._attachments[''+ pymolOptions.width + '.gif'] = {
-                   "content_type": "image/gif",
-                   "data": buff.toString("Base64")
-               };
-                saveToCouchDB(pdbEntry, callback);
-            }, function(err) {
-                console.error('An error occured while generating the image with pymol', err);
-                console.log('No image could be generated for ' + id);
-                saveToCouchDB(pdbEntry, callback);
-            });
-
-		});
-	})
-}
-
 
 // this file is gzip, we need to uncompress it
 function processNewFiles(newFiles) {
-	if (newFiles && newFiles.length>0) {
-		async.mapSeries(newFiles, processNewFile, function(err,result) {
-			if(err) console.log('An error occured while processing files', err);
-		})
-	}
+    if (newFiles && newFiles.length>0) {
+        async.mapSeries(newFiles, common.processNewFile, function(err) {
+            if(err) console.log('An error occured while processing files', err);
+        });
+    }
 }
 
 
-function saveToCouchDB(entry, callback) {
-	nano.db.create(config.couch.database);
-	var pdb = nano.db.use(config.couch.database);
-	pdb.head(entry._id, function(err, _, header) {
-		// if (err) console.log(err.status_code);
-		if (header && header.etag) { // a revision exists
-			entry._rev=header.etag.replace(/"/g,""); // strange code ?!!!!
-		}
 
-		pdb.insert( entry, function(err, body, header) {
-	    	if (err) throw console.log(err);
-	    	callback(null, entry._id);
-   		});
-	});
-}

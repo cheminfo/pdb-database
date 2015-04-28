@@ -16,6 +16,11 @@ exports = module.exports = function() {
         couchUrl.port = '' + config.couch.port;
     }
     config.couch.fullUrl = url.format(couchUrl);
+
+    // Make sure of trailing slash
+    if(config.rsync && config.rsync.destination) {
+        config.rsync.destination = config.rsync.destination.replace(/\/$/, '') + '/';
+    }
     fullConfig = config;
     return fullConfig;
 };

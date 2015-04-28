@@ -2,8 +2,14 @@ var fs = require('fs');
 var gm = require('gm');
 var _ = require('lodash');
 
-exports = module.exports = function(id, pdb, options) {
-
+exports = module.exports = function pymol(id, pdb, options) {
+    if(options instanceof Array) {
+        var prom = new Array(options.length);
+        for(var i=0; i<options.length; i++) {
+            prom[i] = pymol(id, pdb, options[i])
+        }
+        return Promise.all(prom);
+    }
     var defaultOptions = {
         width: 200,
         height: 200
