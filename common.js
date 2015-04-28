@@ -33,7 +33,7 @@ module.exports = {
                     for(var i=0; i<buff.length; i++) {
                         pdbEntry._attachments[''+ config.pymol[i].width + 'x' + config.pymol[i].height+ '.gif'] = {
                             "content_type": "image/gif",
-                            "data": buff.toString("Base64")
+                            "data": buff[i].toString("Base64")
                         };
                     }
                     saveToCouchDB(pdbEntry, callback);
