@@ -33,12 +33,16 @@ glob(destination+"**/*.gz", {}, function (er, files) {
 
 
 function processNewFile(newFile, callback) {
+	var pymolOptions = {
+		width: 400, height:400
+	};
 	console.log("Process: "+newFile);
 	fs.readFile(newFile, function(err,data) {
 		if (err) console.log(err);
 		zlib.gunzip(data, function(err, buffer) {
 			if (err) throw err;
 			var id=newFile.replace(/^.*\/pdb([^\.]*).*/,"$1").toUpperCase();
+			console.log('PDB id: ', id);
 		    var pdbEntry = pdbParser.parse(buffer.toString());
 		    pdbEntry._id=id;
                     pdbEntry._attachments={};
@@ -46,8 +50,8 @@ function processNewFile(newFile, callback) {
     			"content_type":"chemical/x-pdb",
     			"data":buffer.toString("Base64")
     		    };
-            pymol(id, buffer.toString()).then(function(buff) {
-               pdbEntry._attachments['200.gif'] = {
+            pymol(id, buffer.toString(), pymolOptions).then(function(buff) {
+               pdbEntry._attachments[''+ pymolOptions.width + '.gif'] = {
                    "content_type": "image/gif",
                    "data": buff.toString("Base64")
                };

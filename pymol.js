@@ -19,10 +19,9 @@ exports = module.exports = function(id, pdb, options) {
             }
 
             var exec = require('child_process').exec;
-            var cmd = 'pymol -c ' + pdbFile + ' -d "as ribbon;spectrum count;set seq_view" -g ' + pngFile;
+            var cmd = 'pymol -c ' + pdbFile + ' -d "as ribbon;spectrum count;set seq_view; set all_states, on" -g ' + pngFile;
             exec(cmd,
                 function (error) {
-
                     fs.unlinkSync(pdbFile);
                     if (error !== null) {
                         console.log('exec error: ' + error);

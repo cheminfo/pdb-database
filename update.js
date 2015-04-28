@@ -65,6 +65,10 @@ asyncRsync.mapLimit(folders, 1, processFolder, function(err,result) {
 });
 
 function processNewFile(newFile, callback) {
+    var pymolOptions = {
+        width: 400,
+        height: 400
+    };
     console.log("Process: "+destination+newFile);
     fs.readFile(destination+newFile, function(err,data) {
         if (err) console.log(err);
@@ -79,8 +83,8 @@ function processNewFile(newFile, callback) {
                 "data":buffer.toString("Base64")
             };
             // Generate the image with pymol
-            pymol(id, buffer.toString()).then(function(buff) {
-                pdbEntry._attachments['200.gif'] = {
+            pymol(id, buffer.toString(), pymolOptions).then(function(buff) {
+                pdbEntry._attachments['' + pymolOptions.width + '.gif'] = {
                     "content_type": "image/gif",
                     "data": buff.toString("Base64")
                 };
