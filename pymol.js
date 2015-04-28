@@ -17,16 +17,17 @@ function pymol(id, pdb, options) {
     };
 
     options = _.defaults(options, defaultOptions);
+	console.log(options);
     return new Promise(function(resolve, reject) {
-        var pdbFile = id+'.pdb';
-        var pngFile = id+'.png';
+        var pdbFile = __dirname + '/' + id+'.pdb';
+        var pngFile = __dirname + '/' + id+'.png';
         fs.writeFile(pdbFile, pdb, function(err) {
             if(err) {
-                reject('could not write file');
+                return reject('could not write file');
             }
-
             var exec = require('child_process').exec;
-            var cmd = 'pymol -c ' + pdbFile + ' -d "as ribbon;spectrum count;set seq_view; set all_states, on" -g ' + pngFile;
+            var cmd = 'pymol -c ' + pdbFile + ' -d "as ribbon;spectrum count;set seq_view" -g ' + pngFile;
+console.log(cmd);
             exec(cmd,
                 function (error) {
                     fs.unlinkSync(pdbFile);

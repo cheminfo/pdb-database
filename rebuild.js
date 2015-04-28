@@ -11,7 +11,6 @@ var async = require ('async');
 var argv = require('minimist')(process.argv.slice(2));
 var justone;
 var destination=config.rsync.destination;
-var pdb = common.createCouchDB(config.couch);
 
 if(argv['justone']) {
     justone = true;
