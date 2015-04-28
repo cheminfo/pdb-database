@@ -71,8 +71,7 @@ function processNewFile(newFile, callback) {
 function processNewFiles(newFiles) {
 	if (newFiles && newFiles.length>0) {
 		async.mapSeries(newFiles, processNewFile, function(err,result) {
-			console.log(err);
-			console.log(result);
+			if(err) console.log('An error occured while processing files', err);
 		})
 	}
 }
