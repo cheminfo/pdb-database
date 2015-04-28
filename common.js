@@ -7,11 +7,7 @@ var fs = require('fs');
 
 var nano = require('nano')(config.couch.fullUrl);
 nano.db.create(config.database);
-var db = nano.db.use(config.couch.database);
-return db;
-
-var destination = config.rsync.destination;
-
+var pdb = nano.db.use(config.couch.database);
 
 module.exports = {
     processNewFile: function(newFile, callback) {

@@ -2,7 +2,8 @@ var fs = require('fs');
 var gm = require('gm');
 var _ = require('lodash');
 
-exports = module.exports = function pymol(id, pdb, options) {
+
+function pymol(id, pdb, options) {
     if(options instanceof Array) {
         var prom = new Array(options.length);
         for(var i=0; i<options.length; i++) {
@@ -42,4 +43,6 @@ exports = module.exports = function pymol(id, pdb, options) {
                 });
         });
     });
-};
+}
+
+exports = module.exports = pymol;
