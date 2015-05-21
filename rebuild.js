@@ -12,27 +12,27 @@ var argv = require('minimist')(process.argv.slice(2));
 var justone;
 var destination=config.rsync.destination;
 
-if(argv['justone']) {
-    justone = true;
-}
-
 function errorHandler(err) {
     console.log('An error occured', err, err.stack);
 }
 
-glob(destination+"**/*.gz", {}, function (er, files) {
-    if(justone) {
-        Promise.resolve()
-            .then(processPdbs(files.slice(0,1)))
-            .then(processPdbsAssembly(files.slice(0,1)))
-            .catch(errorHandler);
-    }
-    else {
-        Promise.resolve()
-            .then(processPdbs(files))
-            .then(processPdbsAssembly(files))
-            .catch(errorHandler);
-    }
+
+if(argv['file']) {
+    var file = argv['file'].toLowerCase();
+}
+
+var pattern;
+if(file) {
+    pattern = '**/*' + file + '.ent.gz';
+}
+else {
+    pattern = '**/*.gz';
+}
+glob(destination + pattern, {}, function (er, files) {
+    Promise.resolve()
+        .then(processPdbs(files))
+        .then(processPdbsAssembly(files))
+        .catch(errorHandler);
 
 });
 
