@@ -8,6 +8,10 @@
     "source": "",
     "destination":""
   },
+  "rsyncAssembly": {
+    "source": "",
+    "destination": ""
+  },
   "pymol": [
     {
       "width": 400,

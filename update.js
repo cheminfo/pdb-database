@@ -31,16 +31,16 @@ rsync.execute(function(error, code, cmd) {
         console.log(error);
         console.log(code);
         console.log(cmd);
-        processNewFiles(newFiles, callback);
+        processPdbs(newFiles, callback);
     } else {
-        processNewFiles(newFiles, callback);
+        processPdbs(newFiles, callback);
     }
 });
 
 // this file is gzip, we need to uncompress it
-function processNewFiles(newFiles, callback) {
+function processPdbs(newFiles, callback) {
     if (newFiles && newFiles.length>0) {
-        async.mapSeries(newFiles, common.processNewFile, function(err) {
+        async.mapSeries(newFiles, common.processPdb, function(err) {
             if(err) console.error(err);
             callback(null, newFiles);
         })

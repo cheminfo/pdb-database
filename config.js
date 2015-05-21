@@ -20,6 +20,7 @@ exports = module.exports = function() {
     // Make sure of trailing slash
     if(config.rsync && config.rsync.destination) {
         config.rsync.destination = config.rsync.destination.replace(/\/$/, '') + '/';
+        config.rsyncAssembly.destination = config.rsyncAssembly.destination.replace(/\/$/, '') + '/';
     }
     fullConfig = config;
     return fullConfig;

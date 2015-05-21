@@ -16,12 +16,22 @@ if(argv['justone']) {
     justone = true;
 }
 
+function errorHandler(err) {
+    console.log('An error occured', err, err.stack);
+}
+
 glob(destination+"**/*.gz", {}, function (er, files) {
     if(justone) {
-        processNewFiles(files.slice(0,1));
+        Promise.resolve()
+            .then(processPdbs(files.slice(0,1)))
+            .then(processPdbsAssembly(files.slice(0,1)))
+            .catch(errorHandler);
     }
     else {
-        processNewFiles(files);
+        Promise.resolve()
+            .then(processPdbs(files))
+            .then(processPdbsAssembly(files))
+            .catch(errorHandler);
     }
 
 });
@@ -29,10 +39,28 @@ glob(destination+"**/*.gz", {}, function (er, files) {
 
 
 // this file is gzip, we need to uncompress it
-function processNewFiles(newFiles) {
-    if (newFiles && newFiles.length>0) {
-        async.mapSeries(newFiles, common.processNewFile, function(err) {
-            if(err) console.log('An error occured while processing files', err);
+function processPdbs(files) {
+    return function() {
+        return new Promise(function (resolve, reject) {
+            if (files && files.length>0) {
+                async.mapSeries(files, common.processPdb, function(err) {
+                    if(err) return reject(err);
+                    return resolve();
+                });
+            }
+        });  
+    };
+}
+
+function processPdbsAssembly(files) {
+    return function() {
+        return new Promise(function (resolve, reject) {
+            if(files && files.length > 0) {
+                async.mapSeries(files, common.processPdbAssembly, function(err) {
+                    if(err) return reject(err);
+                    return resolve();
+                })
+            }
         });
     }
 }
