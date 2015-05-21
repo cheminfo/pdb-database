@@ -17,11 +17,15 @@ function errorHandler(err) {
 }
 
 
-if(argv['file']) {
-    var file = argv['file'].toLowerCase();
-}
 
-var pattern;
+
+var pattern, limit, file;
+if(argv['file']) {
+    file = argv['file'].toLowerCase();
+}
+limit = +argv.limit;
+if(isNaN(limit)) limit = undefined;
+
 if(file) {
     pattern = '**/*' + file + '.ent.gz';
 }
@@ -29,6 +33,9 @@ else {
     pattern = '**/*.gz';
 }
 glob(destination + pattern, {}, function (er, files) {
+    if(limit) {
+        files = files.slice(0, limit);
+    }
     Promise.resolve()
         .then(processPdbs(files))
         .then(processPdbsAssembly(files))
@@ -64,6 +71,3 @@ function processPdbsAssembly(files) {
         });
     }
 }
-
-
-
