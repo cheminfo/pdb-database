@@ -17,10 +17,9 @@ module.exports = {
         console.log("Process: "+filename);
         var id = getIdFromFileName(filename).toUpperCase();
         fs.readFile(filename, function(err,data) {
-            if (err) console.log(err);
+            if (err) return callback(err);
             zlib.gunzip(data, function(err, buffer) {
                 if (err) return callback(err);
-                console.log('PDB id: ', id);
                 var pdbEntry = pdbParser.parse(buffer.toString());
                 pdbEntry._id=id;
                 pdbEntry._attachments={};
@@ -41,8 +40,6 @@ module.exports = {
         var bioFilename = path.join(config.rsyncAssembly.destination, code, id_l+'.pdb1.gz');
         pdb.get(id, {}, function(err, pdbEntry) {
             if (err) return callback(err);
-            console.log('pdb entry: ' + pdbEntry);
-
             function doPymol(filename) {
                 fs.readFile(filename, function(err,data) {
                     if(err) return callback(err);
@@ -74,7 +71,6 @@ module.exports = {
             }
             // File does not exist
             // Generate pymol from asymmetric unit
-            console.log('bio filename', bioFilename);
             if(!fs.existsSync(bioFilename)) {
                 console.log('generate pymol normal', filename);
                 return doPymol(filename);
@@ -96,7 +92,7 @@ function saveToCouchDB(entry, callback) {
         }
 
         pdb.insert( entry, function(err, body, header) {
-            if (err) throw console.log(err);
+            if (err) return callback(err);
             callback(null, entry._id);
         });
     });
