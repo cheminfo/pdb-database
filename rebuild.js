@@ -1,5 +1,3 @@
-// require ftp
-//  npm install ftp
 // Rebuilds the database based on the rsynced directory
 // Resends attachments
 // Resends values computed by the parser
@@ -16,35 +14,6 @@ function errorHandler(err) {
     console.log('An error occured', err, err.stack);
 }
 
-
-
-
-var pattern, limit, file;
-if(argv['file']) {
-    file = argv['file'].toLowerCase();
-}
-limit = +argv.limit;
-if(isNaN(limit)) limit = undefined;
-
-if(file) {
-    pattern = '**/*' + file + '.ent.gz';
-}
-else {
-    pattern = '**/*.gz';
-}
-glob(destination + pattern, {}, function (er, files) {
-    if(limit) {
-        files = files.slice(0, limit);
-    }
-    Promise.resolve()
-        .then(processPdbs(files))
-        .then(processPdbsAssembly(files))
-        .catch(errorHandler);
-
-});
-
-
-
 // this file is gzip, we need to uncompress it
 function processPdbs(files) {
     return function() {
@@ -55,7 +24,7 @@ function processPdbs(files) {
                     return resolve();
                 });
             }
-        });  
+        });
     };
 }
 
@@ -71,3 +40,41 @@ function processPdbsAssembly(files) {
         });
     }
 }
+
+
+
+
+var pattern,
+    limit=argv.limit,
+    file=argv.file,
+    skipPart1 = argv.skipPart1;
+
+if(argv.file) {
+    file = argv.file.toLowerCase();
+}
+if(isNaN(limit)) limit = undefined;
+
+if(file) {
+    pattern = '**/*' + file + '.ent.gz';
+}
+else {
+    pattern = '**/*.gz';
+}
+
+if(skipPart1) {
+    processPdbs = function() {};
+}
+glob(destination + pattern, {}, function (er, files) {
+    if(limit) {
+        files = files.slice(0, limit);
+    }
+    Promise.resolve()
+        .then(processPdbs(files))
+        .then(processPdbsAssembly(files))
+        .catch(errorHandler);
+
+});
+
+
+
+
