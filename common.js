@@ -1,5 +1,6 @@
 'use strict';
 
+var MAX_BUFFER_LENGTH = 150*1024*1024; // max buffer size 150M
 var config = require('./config')();
 var pdbParser = require('./pdbParser');
 var pymol = require('./pymol');
@@ -56,10 +57,15 @@ module.exports = {
                                     "data": buff[i].toString("Base64")
                                 };
                             }
-                            pdbEntry._attachments[id+".pdb1"]={
-                                "content_type":"chemical/x-pdb",
-                                "data":buffer.toString("Base64")
-                            };
+                           if(buffer.length < MAX_BUFFER_LENGTH) {
+                               pdbEntry._attachments[id+".pdb1"]={
+                                  "content_type":"chemical/x-pdb",
+                                  "data":buffer.toString("Base64")
+                               };   
+                            }
+                            else {
+                                console.log('Not adding ' + id + '.pdb1 to database (file is too big)'); 
+                            }
                             saveToCouchDB(pdbEntry, callback);
                         }, function (err) {
                             console.error('An error occured while generating the image with pymol', err);
@@ -86,6 +92,7 @@ module.exports = {
 
 function saveToCouchDB(entry, callback) {
     pdb.head(entry._id, function(err, _, header) {
+        if(err) return callback(err);
         // if (err) console.log(err.status_code);
         if (header && header.etag) { // a revision exists
             entry._rev=header.etag.replace(/"/g,""); // strange code ?!!!!
