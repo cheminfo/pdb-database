@@ -98,6 +98,7 @@ glob(destination + pattern, {}, function (er, files) {
     if (limit) {
         files = files.slice(0, limit);
     }
+    console.log('About to process ' + files.length + ' files.');
     Promise.resolve()
         .then(processPdbs(files))
         .then(processPdbsAssembly(files))
