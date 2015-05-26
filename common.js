@@ -16,7 +16,7 @@ var pdb = nano.db.use(config.couch.database);
 module.exports = {
     processPdb: function(filename, callback) {
         console.log("Process: "+filename);
-        var id = getIdFromFileName(filename).toUpperCase();
+        var id = module.exports.getIdFromFileName(filename).toUpperCase();
         fs.readFile(filename, function(err,data) {
             if (err) return callback(err);
             zlib.gunzip(data, function(err, buffer) {
@@ -34,7 +34,7 @@ module.exports = {
     },
     
     processPdbAssembly: function(filename, callback) {
-        var id = getIdFromFileName(filename).toUpperCase();
+        var id = module.exports.getIdFromFileName(filename).toUpperCase();
         var id_l = id.toLowerCase();
         var code = id_l.substr(1,2);
 
@@ -85,9 +85,11 @@ module.exports = {
                 return doPymol(bioFilename);
             }
         });
-
-
+    },
+    getIdFromFileName: function(filename) {
+        return filename.replace(/^.*\/pdb([^\.]*).*/,"$1");
     }
+
 };
 
 function saveToCouchDB(entry, callback) {
@@ -103,8 +105,4 @@ function saveToCouchDB(entry, callback) {
             callback(null, entry._id);
         });
     });
-}
-
-function getIdFromFileName(filename) {
-    return filename.replace(/^.*\/pdb([^\.]*).*/,"$1");
 }
