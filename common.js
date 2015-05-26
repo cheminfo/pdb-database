@@ -46,7 +46,7 @@ module.exports = {
                     if(err) return callback(err);
                     zlib.gunzip(data, function (err, buffer) {
                         if(err) return callback(err);
-                        pymol(id, buffer.toString(), config.pymol).then(function (buff) {
+                        pymol(id, buffer, config.pymol).then(function (buff) {
                             if (!(buff instanceof Array)) {
                                 buff = [buff];
                             }
