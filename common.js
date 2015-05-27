@@ -49,7 +49,11 @@ module.exports = {
             // Generate pymol from asymmetric unit
             if (!fs.existsSync(bioFilename)) {
                 console.log('generate pymol normal', filename);
-                return doPymol(filename, pdbEntry, {save: false});
+                doPymol(filename, pdbEntry, {save: false}).then(function(id) {
+                    return callback(null, id);
+                }).catch(function(err) {
+                    return callback(err);
+                });
             } else {
                 console.log('generate pymol subunits', bioFilename);
                 doPymol(bioFilename, pdbEntry, {save: true}).then(function (id) {
