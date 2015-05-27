@@ -28,9 +28,9 @@ module.exports = {
                     "content_type": "chemical/x-pdb",
                     "data": buffer.toString("Base64")
                 };
-                saveToCouchDB(pdbEntry).then(function(id) {
+                saveToCouchDB(pdbEntry).then(function (id) {
                     return callback(null, id);
-                }).catch(function(err){
+                }).catch(function (err) {
                     return callback(err);
                 });
             });
@@ -52,13 +52,13 @@ module.exports = {
                 return doPymol(filename, pdbEntry, {save: false});
             } else {
                 console.log('generate pymol subunits', bioFilename);
-                doPymol(bioFilename, pdbEntry, {save: true}).then(function(id) {
+                doPymol(bioFilename, pdbEntry, {save: true}).then(function (id) {
                     return callback(null, id);
-                }).catch(function() {
+                }).catch(function () {
                     console.log('An error occured while processing biological assembly, fallback to normal pdb');
-                    doPymol(filename, pdbEntry, {save: false}).then(function(id) {
+                    doPymol(filename, pdbEntry, {save: false}).then(function (id) {
                         return callback(null, id);
-                    }).catch(function(err) {
+                    }).catch(function (err) {
                         return callback(err);
                     })
                 });
@@ -72,7 +72,7 @@ module.exports = {
 };
 
 function saveToCouchDB(entry) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         pdb.head(entry._id, function (err, _, header) {
             if (err) return reject(err);
             // if (err) console.log(err.status_code);
@@ -91,38 +91,32 @@ function saveToCouchDB(entry) {
 
 function doPymol(filename, pdbEntry, options) {
     options = options || {};
-    return new Promise(function(resolve, reject) {
-        fs.readFile(filename, function (err, data) {
-            if (err) return reject(err);
-            var buffer = zlib.gunzipSync(data);
+    var data = fs.readFileSync(filename);
+    var buffer = zlib.gunzipSync(data);
+    return pymol(id, buffer, config.pymol).then(function (buff) {
+        if (!(buff instanceof Array)) {
+            buff = [buff];
+        }
 
-            pymol(id, buffer, config.pymol).then(function (buff) {
-                if (!(buff instanceof Array)) {
-                    buff = [buff];
-                }
-
-                for (var i = 0; i < buff.length; i++) {
-                    pdbEntry._attachments['' + config.pymol[i].width + 'x' + config.pymol[i].height + '.gif'] = {
-                        "content_type": "image/gif",
-                        "data": buff[i].toString("Base64")
-                    };
-                }
-                if (buffer.length < MAX_BUFFER_LENGTH && options.save) {
-                    pdbEntry._attachments[id + ".pdb1"] = {
-                        "content_type": "chemical/x-pdb",
-                        "data": buffer.toString("Base64")
-                    };
-                }
-                else if(options.save) {
-                    console.log('Not adding ' + id + '.pdb1 to database (file is too big)');
-                }
-                return saveToCouchDB(pdbEntry);
-            }, function (err) {
-                console.error('An error occured while generating the image with pymol', err);
-                console.log('No image could be generated for ' + id);
-                return saveToCouchDB(pdbEntry);
-            });
-        });
+        for (var i = 0; i < buff.length; i++) {
+            pdbEntry._attachments['' + config.pymol[i].width + 'x' + config.pymol[i].height + '.gif'] = {
+                "content_type": "image/gif",
+                "data": buff[i].toString("Base64")
+            };
+        }
+        if (buffer.length < MAX_BUFFER_LENGTH && options.save) {
+            pdbEntry._attachments[id + ".pdb1"] = {
+                "content_type": "chemical/x-pdb",
+                "data": buffer.toString("Base64")
+            };
+        }
+        else if (options.save) {
+            console.log('Not adding ' + id + '.pdb1 to database (file is too big)');
+        }
+        return saveToCouchDB(pdbEntry);
+    }, function (err) {
+        console.error('An error occured while generating the image with pymol', err);
+        console.log('No image could be generated for ' + id);
+        return saveToCouchDB(pdbEntry);
     });
-
 }
