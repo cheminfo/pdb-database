@@ -30,8 +30,8 @@ rsync.execute(function(error, code, cmd) {
         console.log(cmd);
     }
     Promise.resolve()
-        .then(common.processPdbs(files))
-        .then(common.processPdbAssemblies(files))
+        .then(common.processPdbs(newFiles))
+        .then(common.processPdbAssemblies(newFiles))
         .catch(errorHandler);
 });
 
