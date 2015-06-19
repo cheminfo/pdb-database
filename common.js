@@ -12,6 +12,7 @@ var path = require('path');
 var nano = require('nano')(config.couch.fullUrl);
 nano.db.create(config.database);
 var pdb = nano.db.use(config.couch.database);
+var async = require('async');
 
 module.exports = {
     processPdb: function (filename, callback) {
@@ -35,6 +36,33 @@ module.exports = {
                 });
             });
         })
+    },
+
+
+    processPdbs: function(files) {
+        return function () {
+            return new Promise(function (resolve, reject) {
+                if (files && files.length > 0) {
+                    async.mapSeries(files, module.exports.processPdb, function (err) {
+                        if (err) return reject(err);
+                        return resolve();
+                    });
+                }
+            });
+        };
+    },
+
+    processPdbAssemblies: function(files) {
+        return function () {
+            return new Promise(function (resolve, reject) {
+                if (files && files.length > 0) {
+                    async.mapSeries(files, module.exports.processPdbAssembly, function (err) {
+                        if (err) return reject(err);
+                        return resolve();
+                    })
+                }
+            });
+        }
     },
 
     processPdbAssembly: function (filename, callback) {
@@ -69,6 +97,7 @@ module.exports = {
             }
         });
     },
+
     getIdFromFileName: function (filename) {
         return filename.replace(/^.*\/pdb([^\.]*).*/, "$1");
     }

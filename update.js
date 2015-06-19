@@ -31,6 +31,7 @@ rsync.execute(function(error, code, cmd) {
         console.log(error);
         console.log(code);
         console.log(cmd);
+
         processPdbs(newFiles, callback);
     } else {
         processPdbs(newFiles, callback);
@@ -46,3 +47,8 @@ function processPdbs(newFiles, callback) {
         })
     }
 }
+
+function errorHandler(err) {
+    console.log('An error occured', err, err.stack);
+}
+
