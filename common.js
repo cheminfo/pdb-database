@@ -39,7 +39,6 @@ module.exports = {
 
 
     processPdbs: function(files) {
-        return function () {
             return new Promise(function (resolve, reject) {
                 if (files && files.length > 0) {
                     async.mapSeries(files, module.exports.processPdb, function (err) {
@@ -48,11 +47,9 @@ module.exports = {
                     });
                 }
             });
-        };
     },
 
     processPdbAssemblies: function(files) {
-        return function () {
             return new Promise(function (resolve, reject) {
                 if (files && files.length > 0) {
                     async.mapSeries(files, module.exports.processPdbAssembly, function (err) {
@@ -61,18 +58,19 @@ module.exports = {
                     })
                 }
             });
-        }
     },
 
     processPdbAssembly: function (filename, callback) {
         var id = module.exports.getIdFromFileName(filename).toUpperCase();
+        console.log(id);
         var id_l = id.toLowerCase();
         var code = id_l.substr(1, 2);
         var pdb = nano.db.use(config.couch.bioAssemblyDatabase);
 
         var bioFilename = path.join(config.rsyncAssembly.destination, code, id_l + '.pdb1.gz');
         pdb.get(id, {}, function (err, pdbEntry) {
-            if (err) return callback(err);
+            if (err && err.statusCode !== 404) return callback(err);
+            else if(err) pdbEntry = {_id: id, _attachments: {}};
             // File does not exist
             // Generate pymol from asymmetric unit
             if (!fs.existsSync(bioFilename)) {
@@ -108,7 +106,8 @@ module.exports = {
     },
 
     getIdFromFileName: function (filename) {
-        return filename.replace(/^.*\/pdb([^\.]*).*/, "$1");
+        return filename.replace(/^.*\/pdb([^\.]*)\.ent\.gz/, "$1")
+            .replace(/^.*\/([^\.]*)\.pdb1.gz/, "$1");
     }
 
 };
@@ -116,9 +115,8 @@ module.exports = {
 function saveToCouchDB(entry, pdb) {
     return new Promise(function (resolve, reject) {
         pdb.head(entry._id, function (err, _, header) {
-            if (err) return reject(err);
-            // if (err) console.log(err.status_code);
-            if (header && header.etag) { // a revision exists
+            if(err && err.statusCode !== 404) return reject(err);
+            if (!err && header && header.etag) { // a revision exists
                 entry._rev = header.etag.replace(/"/g, ""); // strange code ?!!!!
             }
 

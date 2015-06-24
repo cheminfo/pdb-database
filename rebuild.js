@@ -61,7 +61,7 @@ if (argv.file) {
 if (isNaN(limit)) limit = undefined;
 
 if (file) {
-    pattern = '**/*' + file + '.ent.gz';
+    pattern = '**/*' + file + '?(.ent|.pdb1).gz';
 }
 else {
     pattern = '**/*.gz';
@@ -113,7 +113,7 @@ function processPdbFiles(files) {
 
 function processAssemblyFiles(files) {
     console.log('Pdb bio assembly database: about to process ' + files.length + ' files.');
-    return common.processPdb(files);
+    return common.processPdbAssemblies(files);
 }
 
 function getPdbFiles() {
@@ -141,8 +141,5 @@ if (argv['pdb-bio-assembly']) {
 prom.catch(errorHandler);
 
 
-getFiles(destination + pattern)
-    .then(processFiles)
-    .catch(errorHandler);
 
 
