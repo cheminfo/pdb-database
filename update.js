@@ -6,8 +6,8 @@ var Rsync = require ('rsync');
 var common = require('./common');
 var newFiles=[];
 var rsync = new Rsync();
-rsync.source(config.rsync.source);
-rsync.destination(config.rsync.destination);
+rsync.source(config.rsyncAsymUnit.source);
+rsync.destination(config.rsyncAsymUnit.destination);
 rsync.flags("rlptvz");
 rsync.set("delete");
 
@@ -15,7 +15,7 @@ rsync.output(
     function(data){
         // do things like parse progress
         var line=data.toString().replace(/[\r\n].*/g,"");
-        if (line.match(/ent.gz$/)) newFiles.push(config.rsync.destination + line);
+        if (line.match(/ent.gz$/)) newFiles.push(config.rsyncAsymUnit.destination + line);
     }, function(data) {
         // do things like parse error output
     }

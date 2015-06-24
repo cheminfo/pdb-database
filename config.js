@@ -18,9 +18,11 @@ exports = module.exports = function() {
     config.couch.fullUrl = url.format(couchUrl);
 
     // Make sure of trailing slash
-    if(config.rsync && config.rsync.destination) {
-        config.rsync.destination = config.rsync.destination.replace(/\/$/, '') + '/';
-        config.rsyncAssembly.destination = config.rsyncAssembly.destination.replace(/\/$/, '') + '/';
+    if(config.rsyncAsymUnit && config.rsyncAsymUnit.destination) {
+        config.rsyncAsymUnit.destination = config.rsyncAsymUnit.destination.replace(/\/$/, '') + '/';
+    }
+    if(config.rsyncBioAssembly && config.rsyncBioAssembly) {
+        config.rsyncBioAssembly.destination = config.rsyncBioAssembly.destination.replace(/\/$/, '') + '/';
     }
     fullConfig = config;
     return fullConfig;

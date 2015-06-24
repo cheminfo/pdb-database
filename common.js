@@ -28,7 +28,7 @@ module.exports = {
                     "content_type": "chemical/x-pdb",
                     "data": buffer.toString("Base64")
                 };
-                saveToCouchDB(pdbEntry, nano.db.use(config.couch.database)).then(function (id) {
+                saveToCouchDB(pdbEntry, nano.db.use(config.couch.asymUnitDatabase)).then(function (id) {
                     return callback(null, id);
                 }).catch(function (err) {
                     return callback(err);

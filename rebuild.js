@@ -117,7 +117,7 @@ function processAssemblyFiles(files) {
 }
 
 function getPdbFiles() {
-    return getFiles(config.rsync.destination + pattern)
+    return getFiles(config.rsyncAsymUnit.destination + pattern)
 }
 
 function getAssemblyFiles() {
@@ -126,7 +126,7 @@ function getAssemblyFiles() {
 
 var prom = Promise.resolve();
 
-if (argv.pdb) {
+if (argv['pdb-asym-unit']) {
     prom = prom
         .then(getPdbFiles)
         .then(processPdbFiles);
@@ -144,7 +144,5 @@ prom.catch(errorHandler);
 getFiles(destination + pattern)
     .then(processFiles)
     .catch(errorHandler);
-
-
 
 
