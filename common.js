@@ -11,7 +11,6 @@ var path = require('path');
 
 var nano = require('nano')(config.couch.fullUrl);
 nano.db.create(config.database);
-var pdb = nano.db.use(config.couch.database);
 var async = require('async');
 
 module.exports = {
@@ -29,7 +28,7 @@ module.exports = {
                     "content_type": "chemical/x-pdb",
                     "data": buffer.toString("Base64")
                 };
-                saveToCouchDB(pdbEntry).then(function (id) {
+                saveToCouchDB(pdbEntry, nano.db.use(config.couch.database)).then(function (id) {
                     return callback(null, id);
                 }).catch(function (err) {
                     return callback(err);
@@ -69,6 +68,7 @@ module.exports = {
         var id = module.exports.getIdFromFileName(filename).toUpperCase();
         var id_l = id.toLowerCase();
         var code = id_l.substr(1, 2);
+        var pdb = nano.db.use(config.couch.bioAssemblyDatabase);
 
         var bioFilename = path.join(config.rsyncAssembly.destination, code, id_l + '.pdb1.gz');
         pdb.get(id, {}, function (err, pdbEntry) {
@@ -77,18 +77,27 @@ module.exports = {
             // Generate pymol from asymmetric unit
             if (!fs.existsSync(bioFilename)) {
                 console.log('generate pymol normal', filename);
-                doPymol(filename, pdbEntry, {save: false}).then(function(id) {
+                doPymol(filename, pdbEntry, {
+                    save: false,
+                    pdb: nano.db.use(config.couch.bioAssemblyDatabase)
+                }).then(function(id) {
                     return callback(null, id);
                 }).catch(function(err) {
                     return callback(err);
                 });
             } else {
                 console.log('generate pymol subunits', bioFilename);
-                doPymol(bioFilename, pdbEntry, {save: true}).then(function (id) {
+                doPymol(bioFilename, pdbEntry, {
+                    save: true,
+                    pdb: nano.db.use(config.couch.bioAssemblyDatabase)
+                }).then(function (id) {
                     return callback(null, id);
                 }).catch(function () {
                     console.log('An error occured while processing biological assembly, fallback to normal pdb');
-                    doPymol(filename, pdbEntry, {save: false}).then(function (id) {
+                    doPymol(filename, pdbEntry, {
+                        save: false,
+                        pdb: nano.db.use(config.couch.bioAssemblyDatabase)
+                    }).then(function (id) {
                         return callback(null, id);
                     }).catch(function (err) {
                         return callback(err);
@@ -104,7 +113,7 @@ module.exports = {
 
 };
 
-function saveToCouchDB(entry) {
+function saveToCouchDB(entry, pdb) {
     return new Promise(function (resolve, reject) {
         pdb.head(entry._id, function (err, _, header) {
             if (err) return reject(err);
@@ -147,11 +156,11 @@ function doPymol(filename, pdbEntry, options) {
             else if (options.save) {
                 console.log('Not adding ' + pdbEntry._id + '.pdb1 to database (file is too big)');
             }
-            return saveToCouchDB(pdbEntry);
+            return saveToCouchDB(pdbEntry, options.pdb);
         }, function (err) {
             console.error('An error occured while generating the image with pymol', err);
             console.log('No image could be generated for ' + pdbEntry._id);
-            return saveToCouchDB(pdbEntry);
+            return saveToCouchDB(pdbEntry, options.pdb);
         });
     });
 }
