@@ -12,6 +12,41 @@ function errorHandler(err) {
     console.log('An error occured', err, err.stack);
 }
 
+var help = [
+    'pdb-asym-unit', 'do process the pdb asymetrical unit database',
+    'pdb-bio-assembly', 'do process the pdb biological assembly database',
+    'limit', 'Limit of files to process',
+    'file', 'pdb code to process',
+    'fromFile', 'pdb code range start',
+    'toFile', 'pdb code range stop',
+    'fromDir', 'pdb directory range start',
+    'toDir', 'pdb directory range stop',
+    'help', 'Display this help'
+];
+
+function showHelp() {
+    var helpText = help.map(function(v, i) {
+        if(i%2 === 1) {
+            var numTab = 4 - Math.floor(help[i-1].length / 8);
+            var t = '';
+            for (var j = 0; j < numTab; j++) {
+                t += '\t';
+            }
+            return help[i-1] + t + help[i];
+        }
+    }).filter(function(v){
+        return v !== undefined;
+    }).reduce(function(prev, curr) {
+        return prev + '\n' + curr;
+    });
+    console.log(helpText);
+}
+
+if(argv.help || (!argv['pdb-asym-unit'] && !argv['pdb-bio-assembly'])) {
+    showHelp();
+    process.exit(0);
+}
+
 var pattern,
     limit = argv.limit,
     file = argv.file,
