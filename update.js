@@ -7,8 +7,8 @@ var common = require('./common');
 var fs = require('fs');
 var newFiles=[];
 var rsync = new Rsync();
-rsync.source(config.rsync.source);
-rsync.destination(config.rsync.destination);
+rsync.source(config.rsyncAsymUnit.source);
+rsync.destination(config.rsyncAsymUnit.destination);
 rsync.flags("rlptvz");
 rsync.set("delete");
 
@@ -18,7 +18,7 @@ rsync.output(
         var line=data.toString().replace(/[\r\n].*/g,"");
         if (line.match(/ent.gz$/)){
 	  fs.appendFileSync('./rsyncChanges', line);
-          newFiles.push(config.rsync.destination + line);
+          newFiles.push(config.rsyncAsymUnit.destination + line);
         }
     }, function(data) {
         // do things like parse error output

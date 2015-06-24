@@ -1,7 +1,8 @@
 {
   "couch": {
     "url": "",
-    "database":"",
+    "asymUnitDatabase":"",
+    "bioAssemblyDatabase": "",
     "password": ""
   },
   "rsync": {
