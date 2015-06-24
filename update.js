@@ -4,6 +4,7 @@
 var config = require('./config.js')();
 var Rsync = require ('rsync');
 var common = require('./common');
+var fs = require('fs');
 var newFiles=[];
 var rsync = new Rsync();
 rsync.source(config.rsync.source);
@@ -15,7 +16,10 @@ rsync.output(
     function(data){
         // do things like parse progress
         var line=data.toString().replace(/[\r\n].*/g,"");
-        if (line.match(/ent.gz$/)) newFiles.push(config.rsync.destination + line);
+        if (line.match(/ent.gz$/)){
+	  fs.appendFileSync('./rsyncChanges', line);
+          newFiles.push(config.rsync.destination + line);
+        }
     }, function(data) {
         // do things like parse error output
     }
