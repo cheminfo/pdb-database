@@ -38,26 +38,26 @@ module.exports = {
     },
 
 
-    processPdbs: function(files) {
-            return new Promise(function (resolve, reject) {
-                if (files && files.length > 0) {
-                    async.mapSeries(files, module.exports.processPdb, function (err) {
-                        if (err) return reject(err);
-                        return resolve();
-                    });
-                }
-            });
+    processPdbs: function (files) {
+        return new Promise(function (resolve, reject) {
+            if (files && files.length > 0) {
+                async.mapSeries(files, module.exports.processPdb, function (err) {
+                    if (err) return reject(err);
+                    return resolve();
+                });
+            }
+        });
     },
 
-    processPdbAssemblies: function(files) {
-            return new Promise(function (resolve, reject) {
-                if (files && files.length > 0) {
-                    async.mapSeries(files, module.exports.processPdbAssembly, function (err) {
-                        if (err) return reject(err);
-                        return resolve();
-                    })
-                }
-            });
+    processPdbAssemblies: function (files) {
+        return new Promise(function (resolve, reject) {
+            if (files && files.length > 0) {
+                async.mapSeries(files, module.exports.processPdbAssembly, function (err) {
+                    if (err) return reject(err);
+                    return resolve();
+                })
+            }
+        });
     },
 
     processPdbAssembly: function (filename, callback) {
@@ -70,38 +70,16 @@ module.exports = {
         var bioFilename = path.join(config.rsyncAssembly.destination, code, id_l + '.pdb1.gz');
         pdb.get(id, {}, function (err, pdbEntry) {
             if (err && err.statusCode !== 404) return callback(err);
-            else if(err) pdbEntry = {_id: id, _attachments: {}};
+            else if (err) pdbEntry = {_id: id, _attachments: {}};
             // File does not exist
-            // Generate pymol from asymmetric unit
-            if (!fs.existsSync(bioFilename)) {
-                console.log('generate pymol normal', filename);
-                doPymol(filename, pdbEntry, {
-                    save: false,
-                    pdb: nano.db.use(config.couch.bioAssemblyDatabase)
-                }).then(function(id) {
-                    return callback(null, id);
-                }).catch(function(err) {
-                    return callback(err);
-                });
-            } else {
-                console.log('generate pymol subunits', bioFilename);
-                doPymol(bioFilename, pdbEntry, {
-                    save: true,
-                    pdb: nano.db.use(config.couch.bioAssemblyDatabase)
-                }).then(function (id) {
-                    return callback(null, id);
-                }).catch(function () {
-                    console.log('An error occured while processing biological assembly, fallback to normal pdb');
-                    doPymol(filename, pdbEntry, {
-                        save: false,
-                        pdb: nano.db.use(config.couch.bioAssemblyDatabase)
-                    }).then(function (id) {
-                        return callback(null, id);
-                    }).catch(function (err) {
-                        return callback(err);
-                    })
-                });
-            }
+            console.log('generate pymol subunits', bioFilename);
+            doPymol(bioFilename, pdbEntry, {
+                pdb: nano.db.use(config.couch.bioAssemblyDatabase)
+            }).then(function (id) {
+                return callback(null, id);
+            }).catch(function (e) {
+                console.log('An error occured while processing biological assembly', e);
+            });
         });
     },
 
@@ -115,7 +93,7 @@ module.exports = {
 function saveToCouchDB(entry, pdb) {
     return new Promise(function (resolve, reject) {
         pdb.head(entry._id, function (err, _, header) {
-            if(err && err.statusCode !== 404) return reject(err);
+            if (err && err.statusCode !== 404) return reject(err);
             if (!err && header && header.etag) { // a revision exists
                 entry._rev = header.etag.replace(/"/g, ""); // strange code ?!!!!
             }
@@ -131,34 +109,37 @@ function saveToCouchDB(entry, pdb) {
 
 function doPymol(filename, pdbEntry, options) {
     options = options || {};
-    return Promise.resolve().then(function() {
-        var data = fs.readFileSync(filename);
-        var buffer = zlib.gunzipSync(data);
-        return pymol(pdbEntry._id, buffer, config.pymol).then(function (buff) {
-            if (!(buff instanceof Array)) {
-                buff = [buff];
-            }
-
-            for (var i = 0; i < buff.length; i++) {
-                pdbEntry._attachments['' + config.pymol[i].width + 'x' + config.pymol[i].height + '.gif'] = {
-                    "content_type": "image/gif",
-                    "data": buff[i].toString("Base64")
-                };
-            }
-            if (buffer.length < MAX_BUFFER_LENGTH && options.save) {
-                pdbEntry._attachments[pdbEntry._id + ".pdb1"] = {
-                    "content_type": "chemical/x-pdb",
-                    "data": buffer.toString("Base64")
-                };
-            }
-            else if (options.save) {
-                console.log('Not adding ' + pdbEntry._id + '.pdb1 to database (file is too big)');
-            }
-            return saveToCouchDB(pdbEntry, options.pdb);
-        }, function (err) {
-            console.error('An error occured while generating the image with pymol', err);
-            console.log('No image could be generated for ' + pdbEntry._id);
-            return saveToCouchDB(pdbEntry, options.pdb);
+    return new Promise(function (resolve, reject) {
+        fs.readFile(filename, function (err, data) {
+            if (err) return reject(err);
+            zlib.gunzip(data, function (err, buffer) {
+                if (err) return reject(err);
+                return pymol(pdbEntry._id, buffer, config.pymol).then(function (buff) {
+                    if (!(buff instanceof Array)) {
+                        buff = [buff];
+                    }
+                    for (var i = 0; i < buff.length; i++) {
+                        pdbEntry._attachments['' + config.pymol[i].width + 'x' + config.pymol[i].height + '.gif'] = {
+                            "content_type": "image/gif",
+                            "data": buff[i].toString("Base64")
+                        };
+                    }
+                    if (buffer.length < MAX_BUFFER_LENGTH) {
+                        pdbEntry._attachments[pdbEntry._id + ".pdb1"] = {
+                            "content_type": "chemical/x-pdb",
+                            "data": buffer.toString("Base64")
+                        };
+                    }
+                    else {
+                        console.log('Not adding ' + pdbEntry._id + '.pdb1 to database (file is too big)');
+                    }
+                    return saveToCouchDB(pdbEntry, options.pdb);
+                }, function (err) {
+                    console.error('An error occured while generating the image with pymol', err);
+                    console.log('No image could be generated for ' + pdbEntry._id);
+                    return saveToCouchDB(pdbEntry, options.pdb);
+                });
+            });
         });
     });
 }
