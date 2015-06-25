@@ -61,13 +61,16 @@ if (argv.file) {
 if (isNaN(limit)) limit = undefined;
 
 if (file) {
-    pattern = '**/*' + file + '?(.ent|.pdb1).gz';
+    pattern = '**/*' + file + '+(.ent|.pdb1).gz';
 }
 else {
-    pattern = '**/*.gz';
+    pattern = '**/*+(.ent|.pdb1).gz';
 }
 
+console.log(pattern);
+
 function getFiles(pattern) {
+console.log('pattern', pattern);
     return new Promise(function (resolve, reject) {
         glob(pattern, {}, function (err, files) {
             if (err) return reject(err);
