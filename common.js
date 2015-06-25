@@ -53,6 +53,7 @@ module.exports = {
         return new Promise(function (resolve, reject) {
             if (files && files.length > 0) {
                 async.mapSeries(files, module.exports.processPdbAssembly, function (err) {
+console.log('map series end');
                     if (err) return reject(err);
                     return resolve();
                 })
@@ -79,6 +80,7 @@ module.exports = {
                 return callback(null, id);
             }).catch(function (e) {
                 console.log('An error occured while processing biological assembly', e);
+                return callback(null);
             });
         });
     },
@@ -114,7 +116,7 @@ function doPymol(filename, pdbEntry, options) {
             if (err) return reject(err);
             zlib.gunzip(data, function (err, buffer) {
                 if (err) return reject(err);
-                return pymol(pdbEntry._id, buffer, config.pymol).then(function (buff) {
+                var prom = pymol(pdbEntry._id, buffer, config.pymol).then(function (buff) {
                     if (!(buff instanceof Array)) {
                         buff = [buff];
                     }
@@ -139,6 +141,7 @@ function doPymol(filename, pdbEntry, options) {
                     console.log('No image could be generated for ' + pdbEntry._id);
                     return saveToCouchDB(pdbEntry, options.pdb);
                 });
+            return resolve(prom);
             });
         });
     });
