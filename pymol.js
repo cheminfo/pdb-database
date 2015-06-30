@@ -25,7 +25,7 @@ function pymol(id, pdb, options) {
                 return reject('could not write file');
             }
             var exec = require('child_process').exec;
-            var cmd = 'pymol -c ' + pdbFile + ' -d "as ribbon;spectrum count;set seq_view; set all_states" -g ' + pngFile;
+            var cmd = 'pymol -c ' + pdbFile + ' -d "as ribbon;spectrum count;set seq_view; set all_states; set opaque_background, off;" -g ' + pngFile;
             exec(cmd,
                 function (error) {
                     fs.unlinkSync(pdbFile);
