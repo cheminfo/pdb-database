@@ -121,8 +121,8 @@ function doPymol(filename, pdbEntry, options) {
                         buff = [buff];
                     }
                     for (var i = 0; i < buff.length; i++) {
-                        pdbEntry._attachments['' + config.pymol[i].width + 'x' + config.pymol[i].height + '.gif'] = {
-                            "content_type": "image/gif",
+                        pdbEntry._attachments['' + config.pymol[i].width + 'x' + config.pymol[i].height + '.png'] = {
+                            "content_type": "image/png",
                             "data": buff[i].toString("Base64")
                         };
                     }

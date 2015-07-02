@@ -33,7 +33,7 @@ function pymol(id, pdb, options) {
                         console.log('exec error: ' + error);
                         return reject(error);
                     }
-                    gm(pngFile).resize(options.width, options.height).toBuffer('gif', function(err,buffer){
+                    gm(pngFile).resize(options.width, options.height).toBuffer('png', function(err,buffer){
                         fs.unlinkSync(pngFile);
                         if(err) return reject(err);
 
