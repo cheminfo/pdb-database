@@ -53,7 +53,7 @@ module.exports = {
         return new Promise(function (resolve, reject) {
             if (files && files.length > 0) {
                 async.mapSeries(files, module.exports.processPdbAssembly, function (err) {
-console.log('map series end');
+                    console.log('map series end');
                     if (err) return reject(err);
                     return resolve();
                 })
@@ -69,19 +69,16 @@ console.log('map series end');
         var pdb = nano.db.use(config.couch.bioAssemblyDatabase);
 
         var bioFilename = path.join(config.rsyncAssembly.destination, code, id_l + '.pdb1.gz');
-        pdb.get(id, {}, function (err, pdbEntry) {
-            if (err && err.statusCode !== 404) return callback(err);
-            else if (err) pdbEntry = {_id: id, _attachments: {}};
-            // File does not exist
-            console.log('generate pymol subunits', bioFilename);
-            doPymol(bioFilename, pdbEntry, {
-                pdb: nano.db.use(config.couch.bioAssemblyDatabase)
-            }).then(function (id) {
-                return callback(null, id);
-            }).catch(function (e) {
-                console.log('An error occured while processing biological assembly', e);
-                return callback(null);
-            });
+        var pdbEntry = {_id: id, _attachments: {}};
+        // File does not exist
+        console.log('generate pymol subunits', bioFilename);
+        doPymol(bioFilename, pdbEntry, {
+            pdb: nano.db.use(config.couch.bioAssemblyDatabase)
+        }).then(function (id) {
+            return callback(null, id);
+        }).catch(function (e) {
+            console.log('An error occured while processing biological assembly', e);
+            return callback(null);
         });
     },
 
@@ -141,7 +138,7 @@ function doPymol(filename, pdbEntry, options) {
                     console.log('No image could be generated for ' + pdbEntry._id);
                     return saveToCouchDB(pdbEntry, options.pdb);
                 });
-            return resolve(prom);
+                return resolve(prom);
             });
         });
     });
