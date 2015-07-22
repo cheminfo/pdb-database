@@ -43,6 +43,7 @@ function doRsync(source, destination, fn) {
         function(data){
           // do things like parse progress
           var line=data.toString().replace(/[\r\n].*/g,"");
+          if(line.startsWith('deleting ')) return;
           if (line.match(/ent.gz$/)){
             fs.appendFileSync('./rsyncChanges', config.rsyncAsymUnit.destination + line + '\n');
             newFiles.push(config.rsyncAsymUnit.destination + line);
