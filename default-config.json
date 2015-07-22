@@ -5,11 +5,11 @@
     "bioAssemblyDatabase": "",
     "password": ""
   },
-  "rsync": {
+  "rsyncAsymUnit": {
     "source": "",
     "destination":""
   },
-  "rsyncAssembly": {
+  "rsyncBioAssembly": {
     "source": "",
     "destination": ""
   },
