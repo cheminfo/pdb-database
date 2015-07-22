@@ -62,7 +62,7 @@ function doRsync(source, destination, fn) {
           console.log(cmd);
           return reject(error);
         }
-        return fn(newFiles).then(resolve);
+        return fn(newFiles).then(resolve, reject);
       });
     });
   }
