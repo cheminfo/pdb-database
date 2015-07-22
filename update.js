@@ -5,40 +5,67 @@ var config = require('./config.js')();
 var Rsync = require ('rsync');
 var common = require('./common');
 var fs = require('fs');
-var newFiles=[];
-var rsync = new Rsync();
-rsync.source(config.rsyncAsymUnit.source);
-rsync.destination(config.rsyncAsymUnit.destination);
-rsync.flags("rlptvz");
-rsync.set("delete");
+var argv = require('minimist')(process.argv.slice(2));
 
-rsync.output(
-    function(data){
-        // do things like parse progress
-        var line=data.toString().replace(/[\r\n].*/g,"");
-        if (line.match(/ent.gz$/)){
-	  fs.appendFileSync('./rsyncChanges', line);
-          newFiles.push(config.rsyncAsymUnit.destination + line);
+var help = [
+  'pdb-asym-unit', 'do process the pdb asymetrical unit database',
+  'pdb-bio-assembly', 'do process the pdb biological assembly database',
+  'help', 'Display this help'
+];
+
+if(!argv['pdb-asym-unit'] && !argv['pdb-bio-assembly']) {
+  argv['pdb-asym-unit'] = argv['pdb-bio-assembly'] = true;
+}
+var prom = Promise.resolve();
+if(argv['pdb-asym-unit']) {
+  console.log('Updating asymmetrical units...');
+  prom = prom.then(doRsync(config.rsyncAsymUnit.source, config.rsyncAsymUnit.destination, common.processPdbs));
+}
+
+if(argv['pdb-bio-assembly']) {
+  console.log('Updating biological assemblies...');
+  prom = prom.then(doRsync(config.rsyncBioAssembly.source, config.rsyncBioAssembly.destination, common.processPdbAssemblies));
+}
+
+prom.catch(errorHandler);
+
+function doRsync(source, destination, fn) {
+  return function() {
+    return new Promise(function(resolve, reject) {
+      var newFiles=[];
+      var rsync = new Rsync();
+      rsync.source(source);
+      rsync.destination(destination);
+      rsync.flags("rlptvz");
+      rsync.set("delete");
+
+      rsync.output(
+        function(data){
+          // do things like parse progress
+          var line=data.toString().replace(/[\r\n].*/g,"");
+          if (line.match(/ent.gz$/)){
+            fs.appendFileSync('./rsyncChanges', config.rsyncAsymUnit.destination + line + '\n');
+            newFiles.push(config.rsyncAsymUnit.destination + line);
+          }
+        }, function(data) {
+          // do things like parse error output
         }
-    }, function(data) {
-        // do things like parse error output
-    }
-);
+      );
 
-rsync.execute(function(error, code, cmd) {
-    console.log('rysinc executed, now building database');
-    if (error) {
-        console.log("RSYNC ERROR");
-        console.log(error);
-        console.log(code);
-        console.log(cmd);
-    }
-    Promise.resolve()
-        .then(common.processPdbs(newFiles))
-        .then(common.processPdbAssemblies(newFiles))
-        .catch(errorHandler);
-});
-
+      rsync.execute(function(error, code, cmd) {
+        console.log('rysnc executed, now building database');
+        if (error) {
+          console.log("RSYNC ERROR, did not build database");
+          console.log(error);
+          console.log(code);
+          console.log(cmd);
+          return reject(error);
+        }
+        return fn(newFiles).then(resolve);
+      });
+    });
+  }
+}
 
 function errorHandler(err) {
     console.log('An error occured', err, err.stack);
