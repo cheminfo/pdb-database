@@ -1,17 +1,27 @@
 {
   "couch": {
     "url": "",
-    "asymUnitDatabase":"",
-    "bioAssemblyDatabase": "",
-    "password": ""
+    "password": "",
+    "user": "",
+    "port": 5984
   },
-  "rsyncAsymUnit": {
-    "source": "",
-    "destination":""
+  "asymetrical": {
+    "couch": {
+      "database":"pdb"
+    },
+    "rsync": {
+      "source": "",
+      "destination":""
+    }
   },
-  "rsyncBioAssembly": {
-    "source": "",
-    "destination": ""
+  "bioAssembly": {
+    "couch": {
+      "database": ""
+    },
+    "rsync": {
+      "source": "",
+      "destination": ""
+    }
   },
   "pymol": [
     {

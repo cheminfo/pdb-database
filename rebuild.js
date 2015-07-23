@@ -120,7 +120,7 @@ function processAssemblyFiles(files) {
 }
 
 function getPdbFiles() {
-    return getFiles(config.rsyncAsymUnit.destination + pattern)
+    return getFiles(config.asymetrical.rsync.destination + pattern)
 }
 
 function getAssemblyFiles() {

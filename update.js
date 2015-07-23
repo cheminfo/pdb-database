@@ -19,12 +19,12 @@ if(!argv['pdb-asym-unit'] && !argv['pdb-bio-assembly']) {
 var prom = Promise.resolve();
 if(argv['pdb-asym-unit']) {
   console.log('Updating asymmetrical units...');
-  prom = prom.then(doRsync(config.rsyncAsymUnit.source, config.rsyncAsymUnit.destination, common.processPdbs));
+  prom = prom.then(doRsync(config.asymetrical.rsync.source, config.asymetrical.rsync.destination, common.processPdbs));
 }
 
 if(argv['pdb-bio-assembly']) {
   console.log('Updating biological assemblies...');
-  prom = prom.then(doRsync(config.rsyncBioAssembly.source, config.rsyncBioAssembly.destination, common.processPdbAssemblies));
+  prom = prom.then(doRsync(config.bioAssembly.rsync.source, config.bioAssembly.rsync.destination, common.processPdbAssemblies));
 }
 
 prom.catch(errorHandler);
@@ -45,8 +45,8 @@ function doRsync(source, destination, fn) {
           var line=data.toString().replace(/[\r\n].*/g,"");
           if(line.startsWith('deleting ')) return;
           if (line.match(/\.gz$/)){
-            fs.appendFileSync('./rsyncChanges', config.rsyncAsymUnit.destination + line + '\n');
-            newFiles.push(config.rsyncAsymUnit.destination + line);
+            fs.appendFileSync('./rsyncChanges', config.asymetrical.rsync.destination + line + '\n');
+            newFiles.push(config.asymetrical.rsync.destination + line);
           }
         }, function(data) {
           // do things like parse error output

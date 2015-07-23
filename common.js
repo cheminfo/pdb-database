@@ -28,7 +28,7 @@ module.exports = {
                     "content_type": "chemical/x-pdb",
                     "data": buffer.toString("Base64")
                 };
-                saveToCouchDB(pdbEntry, nano.db.use(config.couch.asymUnitDatabase)).then(function (id) {
+                saveToCouchDB(pdbEntry, nano.db.use(config.asymetrical.couch.database)).then(function (id) {
                     return callback(null, id);
                 }).catch(function (err) {
                     return callback(err);
@@ -66,14 +66,13 @@ module.exports = {
         console.log(id);
         var id_l = id.toLowerCase();
         var code = id_l.substr(1, 2);
-        var pdb = nano.db.use(config.couch.bioAssemblyDatabase);
 
-        var bioFilename = path.join(config.rsyncAssembly.destination, code, id_l + '.pdb1.gz');
+        var bioFilename = path.join(config.bioAssembly.rsync.destination, code, id_l + '.pdb1.gz');
         var pdbEntry = {_id: id, _attachments: {}};
         // File does not exist
         console.log('generate pymol subunits', bioFilename);
         doPymol(bioFilename, pdbEntry, {
-            pdb: nano.db.use(config.couch.bioAssemblyDatabase)
+            pdb: nano.db.use(config.bioAssembly.couch.database)
         }).then(function (id) {
             return callback(null, id);
         }).catch(function (e) {
