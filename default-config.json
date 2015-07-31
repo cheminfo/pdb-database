@@ -20,7 +20,8 @@
     },
     "rsync": {
       "source": "",
-      "destination": ""
+      "destination": "",
+      "historyDir": ""
     }
   },
   "pymol": [
