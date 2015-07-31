@@ -53,7 +53,6 @@ module.exports = {
         return new Promise(function (resolve, reject) {
             if (files && files.length > 0) {
                 async.mapSeries(files, module.exports.processPdbAssembly, function (err) {
-                    console.log('map series end');
                     if (err) return reject(err);
                     return resolve();
                 })

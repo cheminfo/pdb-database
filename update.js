@@ -56,13 +56,19 @@ function doRsync(source, destination, fn, changedCallback) {
           // do things like parse progress
           var line=data.toString().replace(/[\r\n].*/g,"");
           if(line.startsWith('deleting ')) {
-            changed.deleted.push(common.getIdFromFileName(line).toUpperCase());
+            var pdbId = common.getIdFromFileName(line).toUpperCase();
+            if(pdbId.length === 4) {
+              changed.deleted.push(pdbId);
+            }
             return;
           }
           if (line.match(/\.gz$/)) {
             fs.appendFileSync('./rsyncChanges', config.asymetrical.rsync.destination + line + '\n');
-            changed.updated.push(common.getIdFromFileName(line).toUpperCase());
-            newFiles.push(config.asymetrical.rsync.destination + line);
+            var pdbId = common.getIdFromFileName(line).toUpperCase();
+            if(pdbId.length === 4) {
+              changed.updated.push(pdbId);
+              newFiles.push(config.asymetrical.rsync.destination + line);
+            }
           }
         }, function(data) {
           // do things like parse error output
