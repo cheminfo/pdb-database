@@ -41,7 +41,7 @@ function doRsync(source, destination, fn, changedCallback) {
     return new Promise(function(resolve, reject) {
       var changed = {
         deleted: [],
-        update: []
+        updated: []
       };
 
       var newFiles=[];
@@ -56,13 +56,13 @@ function doRsync(source, destination, fn, changedCallback) {
           // do things like parse progress
           var line=data.toString().replace(/[\r\n].*/g,"");
           if(line.startsWith('deleting ')) {
-            changed.deleted.push(line);
+            changed.deleted.push(common.getIdFromFileName(line).toUpperCase());
             return;
           }
-          if (line.match(/\.gz$/)){
+          if (line.match(/\.gz$/)) {
             fs.appendFileSync('./rsyncChanges', config.asymetrical.rsync.destination + line + '\n');
+            changed.updated.push(common.getIdFromFileName(line).toUpperCase());
             newFiles.push(config.asymetrical.rsync.destination + line);
-            changed.update.push(line);
           }
         }, function(data) {
           // do things like parse error output
