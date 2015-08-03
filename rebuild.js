@@ -124,7 +124,7 @@ function getPdbFiles() {
 }
 
 function getAssemblyFiles() {
-    return getFiles(config.rsyncAssembly.destination + pattern);
+    return getFiles(config.bioAssembly.rsync.destination + pattern);
 }
 
 var prom = Promise.resolve();
