@@ -75,7 +75,7 @@ module.exports = {
         }).then(function (id) {
             return callback(null, id);
         }).catch(function (e) {
-            console.log('An error occured while processing biological assembly', e);
+            console.error('An error occured while processing biological assembly', e);
             return callback(null);
         });
     },
@@ -108,10 +108,13 @@ function doPymol(filename, pdbEntry, options) {
     options = options || {};
     return new Promise(function (resolve, reject) {
         fs.readFile(filename, function (err, data) {
+            console.log('read file', filename);
             if (err) return reject(err);
             zlib.gunzip(data, function (err, buffer) {
+                console.log('unzip file', filename);
                 if (err) return reject(err);
-                var prom = pymol(pdbEntry._id, buffer, config.pymol).then(function (buff) {
+                pymol(pdbEntry._id, buffer, config.pymol).then(function (buff) {
+                    console.log('Add image(s) and pdb as inline attachment');
                     if (!(buff instanceof Array)) {
                         buff = [buff];
                     }
@@ -135,8 +138,7 @@ function doPymol(filename, pdbEntry, options) {
                     console.error('An error occured while generating the image with pymol', err);
                     console.log('No image could be generated for ' + pdbEntry._id);
                     return saveToCouchDB(pdbEntry, options.pdb);
-                });
-                return resolve(prom);
+                }).then(resolve, reject);
             });
         });
     });
