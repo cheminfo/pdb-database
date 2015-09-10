@@ -6,6 +6,7 @@ var config = require('./config.js')();
 var common = require('./common');
 var glob = require("glob");
 var argv = require('minimist')(process.argv.slice(2));
+var path = require('path');
 
 
 function errorHandler(err) {
@@ -120,10 +121,16 @@ function processAssemblyFiles(files) {
 }
 
 function getPdbFiles() {
+    if(file) {
+        return [path.join(config.asymetrical.rsync.destination, file.substr(1, 2), 'pdb' + file + '.ent.gz') ];
+    }
     return getFiles(config.asymetrical.rsync.destination + pattern)
 }
 
 function getAssemblyFiles() {
+    if(file) {
+        return [ path.join(config.bioAssembly.rsync.destination, file.substr(1, 2), file + '.pdb1.gz') ];
+    }
     return getFiles(config.bioAssembly.rsync.destination + pattern);
 }
 
