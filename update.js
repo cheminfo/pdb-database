@@ -81,12 +81,14 @@ function doRsync(source, destination, fn, changedCallback) {
         }
         console.log('rysnc executed, now building database');
         if (error) {
-          console.log("RSYNC ERROR, did not build database");
-          console.log(error);
+          console.log('rsync error');
+          console.error("RSYNC ERROR, did not build database");
+          console.error(error);
           console.log(code);
           console.log(cmd);
           return reject(error);
         }
+        console.log('update new files: ', newFiles);
         return fn(newFiles).then(resolve, reject);
       });
     });
