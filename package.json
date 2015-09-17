@@ -9,8 +9,8 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "update": "node update.js",
-    "rebuild": "node rebuild.js"
+    "update": "node update.js 2>> update-error-log 1>> update-log",
+    "rebuild": "node rebuild.js 2>> rebuild-error-log 1>> rebuild-log"
   },
   "repository": {
     "type": "git",
