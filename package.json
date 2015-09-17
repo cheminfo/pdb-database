@@ -1,4 +1,32 @@
 {
+  "name": "pdb-database",
+  "description": "PDB Database ============================== Sync of the official PDB database in couchdb. The database is searchable for properties like number of residues, residue percentages, molecular weight etc...",
+  "version": "0.0.1",
+  "main": "rebuild.js",
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "update": "node update.js",
+    "rebuild": "node rebuild.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cheminfo/pdb-database.git"
+  },
+  "keywords": [
+    "pdb",
+    "pdb-parser",
+    "couchdb"
+  ],
+  "author": "Daniel Kostro",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cheminfo/pdb-database/issues"
+  },
+  "homepage": "https://github.com/cheminfo/pdb-database#readme",
   "dependencies": {
     "async": "^0.9.0",
     "ftp": "^0.3.10",
