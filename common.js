@@ -75,7 +75,7 @@ module.exports = {
         }).then(function (id) {
             return callback(null, id);
         }).catch(function (e) {
-            console.error('An error occured while processing biological assembly', e);
+            console.error('An error occured while processing biological assembly ' + id, e);
             return callback(null);
         });
     },
@@ -135,7 +135,7 @@ function doPymol(filename, pdbEntry, options) {
                     }
                     return saveToCouchDB(pdbEntry, options.pdb);
                 }, function (err) {
-                    console.error('An error occured while generating the image with pymol', err);
+                    console.error('An error occured while generating the image with pymol' + pdbEntry._id, err);
                     console.log('No image could be generated for ' + pdbEntry._id);
                     return saveToCouchDB(pdbEntry, options.pdb);
                 }).then(resolve, reject);
