@@ -43,7 +43,11 @@ function showHelp() {
     console.log(helpText);
 }
 
-if(argv.help || (!argv['pdb-asym-unit'] && !argv['pdb-bio-assembly'])) {
+if(!argv['pdb-asym-unit'] && !argv['pdb-bio-assembly']) {
+    argv['pdb-asym-unit'] = argv['pdb-bio-assembly'] = true;
+}
+
+if(argv.help) {
     showHelp();
     process.exit(0);
 }
