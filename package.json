@@ -6,12 +6,16 @@
   "directories": {
     "test": "tests"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "mocha": "^2.2.5",
+    "mocha-better-spec-reporter": "^2.1.1",
+    "should": "^7.0.2"
+  },
   "scripts": {
     "test": "mocha --require should --reporter mocha-better-spec-reporter --recursive",
     "update": "node update.js 2>> update-error-log 1>> update-log",
     "rebuild": "node rebuild.js 2>> rebuild-error-log 1>> rebuild-log"
-},
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cheminfo/pdb-database.git"
@@ -36,11 +40,7 @@
     "minimist": "^1.1.1",
     "nano": "^6.1.2",
     "request": "^2.55.0",
-    "rsync": "^0.4.0"
-  },
-  "devDependencies": {
-    "mocha": "^2.2.5",
-    "mocha-better-spec-reporter": "^2.1.1",
-    "should": "^7.0.2"
+    "rsync": "^0.4.0",
+    "underscore": "^1.8.3"
   }
 }
