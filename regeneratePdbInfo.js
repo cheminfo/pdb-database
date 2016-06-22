@@ -11,7 +11,7 @@ var path = require('path');
 var _ = require('underscore');
 var async = require('async');
 
-var databaseUrl = config.couch.fullUrl + '/' + config.couch.database;
+var databaseUrl = config.couch.fullUrl + '/' + config.asymetrical.couch.database;
 
 request.get(databaseUrl + '/_all_docs?include_docs=false', function(err, res, body){
   if(err) {
